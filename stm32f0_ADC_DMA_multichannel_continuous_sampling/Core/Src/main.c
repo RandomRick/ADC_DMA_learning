@@ -84,7 +84,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
 //  HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_RESET);
 //	HAL_GPIO_TogglePin(DebugPin_GPIO_Port, DebugPin_Pin);
-HAL_GPIO_TogglePin(DebugPin_GPIO_Port, DebugPin_Pin);
+HAL_GPIO_TogglePin(DebugPin2_GPIO_Port, DebugPin2_Pin);
 	if (TimerFlag == 1) {
 		HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_SET);
 		i = 0;
@@ -414,14 +414,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, DebugPin2_Pin|DebugPin_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : DebugPin_Pin */
-  GPIO_InitStruct.Pin = DebugPin_Pin;
+  /*Configure GPIO pins : DebugPin2_Pin DebugPin_Pin */
+  GPIO_InitStruct.Pin = DebugPin2_Pin|DebugPin_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(DebugPin_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
