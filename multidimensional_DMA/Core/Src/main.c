@@ -51,7 +51,7 @@ ADC_HandleTypeDef hadc;
 DMA_HandleTypeDef hdma_adc;
 
 /* USER CODE BEGIN PV */
-
+uint16_t		AADebugShad[NUM_CHANNELS];
 uint16_t		DmaBuffer[NUM_CHANNELS * DMA_ARRAY_LEN];
 unsigned char	ConversionComplete = 0;
 
@@ -78,8 +78,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	/* Prevent unused argument(s) compilation warning */
 	UNUSED(hadc);
+	AADebugShad[0] = DmaBuffer[30];
+	AADebugShad[1] = DmaBuffer[31];
+	AADebugShad[2] = DmaBuffer[32];
 
-	HAL_GPIO_TogglePin(DebugPin_GPIO_Port, DebugPin_Pin);
+//	HAL_ADC_Stop_DMA(hadc); //! debug
+	HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_RESET);
 }
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
@@ -87,11 +91,10 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(hadc);
 
-  DmaBuffer[0] = (uint16_t)1234;
-  memset ((void *)DmaBuffer, 0, NUM_CHANNELS * DMA_ARRAY_LEN * sizeof (DmaBuffer[0]));
-  asm("nop");
+//  HAL_ADC_Stop_DMA(hadc);
 
-  HAL_GPIO_TogglePin(DebugPin_GPIO_Port, DebugPin_Pin);
+  HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_SET);
+//  HAL_ADC_Start_DMA(hadc, (uint32_t *)DmaBuffer, NUM_CHANNELS * DMA_ARRAY_LEN);
 }
 
 
@@ -285,14 +288,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, DebugPin2_Pin|DebugPin_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : DebugPin_Pin */
-  GPIO_InitStruct.Pin = DebugPin_Pin;
+  /*Configure GPIO pins : DebugPin2_Pin DebugPin_Pin */
+  GPIO_InitStruct.Pin = DebugPin2_Pin|DebugPin_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(DebugPin_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 

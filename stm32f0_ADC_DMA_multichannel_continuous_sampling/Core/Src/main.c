@@ -82,8 +82,6 @@ static void MX_TIM1_Init(void);
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 	static int i;
 
-//  HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_RESET);
-//	HAL_GPIO_TogglePin(DebugPin_GPIO_Port, DebugPin_Pin);
 HAL_GPIO_TogglePin(DebugPin2_GPIO_Port, DebugPin2_Pin);
 	if (TimerFlag == 1) {
 		HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_SET);
@@ -94,18 +92,18 @@ HAL_GPIO_TogglePin(DebugPin2_GPIO_Port, DebugPin2_Pin);
 		TimerFlag = 0;
 	}
 
-	if (i < 250)	// still counting?
+	if (i < 100)	// still counting?
 			{
 		i++;
 		AdcSummations[0] += AdcArray[0];
 		AdcSummations[1] += AdcArray[1];
 		AdcSummations[2] += AdcArray[2];
-		if (i == 250) {
+		if (i == 100) {
 			HAL_GPIO_WritePin(DebugPin_GPIO_Port, DebugPin_Pin, GPIO_PIN_RESET);
+			AdcComplete = 1;
+			HAL_ADC_Stop_DMA(hadc);
 		}
 	}
-
-	AdcComplete = 1;
 }
 
 
@@ -121,10 +119,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	/* Prevent unused argument(s) compilation warning */
 	UNUSED(htim);
 
-	/* NOTE : This function should not be modified, when the callback is needed,
-	 the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
-	 */
-//HAL_GPIO_TogglePin(DebugPin_GPIO_Port, DebugPin_Pin);
+	HAL_ADC_Start_DMA(&hadc, (uint32_t *)AdcArray, 3);
 	TimerFlag = 1;
 
 }
@@ -179,15 +174,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  HAL_ADC_Start_DMA(&hadc, (uint32_t *)AdcArray, 3);		//! Start ADC in DMA mode
-  HAL_Delay(100);
+
   HAL_TIM_Base_Start_IT(&htim1);
+
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//	  HAL_GPIO_TogglePin(DebugPin_GPIO_Port, DebugPin_Pin);
 	  HAL_Delay(10);
   }
   /* USER CODE END 3 */
@@ -322,7 +316,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 100-1;
+  htim1.Init.Prescaler = 10-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 16000-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
